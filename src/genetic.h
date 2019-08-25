@@ -33,4 +33,5 @@ class Scheme {
 
   private:
   std::vector<VecD> calcKVec(double t, const VecD& x, std::function<VecD(double,VecD)> f) const;
+  std::vector<VecD> A_full_from_lower(VecD const& a_lower) const;
 };

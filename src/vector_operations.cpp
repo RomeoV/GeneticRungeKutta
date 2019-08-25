@@ -1,5 +1,5 @@
-#include "genetic.h"
 #include <iostream>
+#include "genetic.h"
 
 std::ostream& operator<<(std::ostream& os, const VecD& v) {
   os << "[";
@@ -35,7 +35,7 @@ void operator+=(VecD& lhs, const VecD& rhs) {
 VecD operator*(const double& lhs, const VecD& rhs) {
   VecD result;
   std::transform(rhs.begin(), rhs.end(), std::back_inserter(result),
-      [=](double val){return lhs*val;});
+      [lhs](double el)->double {return lhs*el;});
   return result;
 }
 

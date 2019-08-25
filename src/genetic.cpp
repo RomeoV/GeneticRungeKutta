@@ -90,12 +90,12 @@ std::vector<VecD> Scheme::run(const VecD& x0, std::function<VecD(double,VecD)> f
   return x;
 }
 
-std::vector<VecD> A_full_from_lower(VecD const& a_lower) {
-  size_t dims = static_cast<size_t>(std::sqrt(0.25+2*a_lower.size())-1./2) + 1;  // a_lower.size() = n(n+1)/2 => pq-equation: n = -1/2 + sqrt(1/4 + a_lower.size)
-  std::vector<VecD> A(dims, VecD());
+std::vector<VecD> Scheme::A_full_from_lower(VecD const& a_lower) const {
+  // size_t dims = static_cast<size_t>(std::sqrt(0.25+2*a_lower.size())-1./2) + 1;  // a_lower.size() = n(n+1)/2 => pq-equation: n = -1/2 + sqrt(1/4 + a_lower.size)
+  std::vector<VecD> A(this->n, VecD());
   size_t lower_idx = 0;
 
-  for (size_t row = 1; row < dims; row++) {
+  for (size_t row = 1; row < this->n; row++) {
     A[row] = VecD(row);
     for (size_t col = 0; col < row; col++) {
       A[row][col] = a_lower[lower_idx];
@@ -108,7 +108,7 @@ std::vector<VecD> A_full_from_lower(VecD const& a_lower) {
 
 std::vector<VecD> Scheme::calcKVec(double t, const VecD& x, std::function<VecD(double,VecD)> f) const {
   std::vector<VecD> k(this->n,VecD(x.size(),0.));
-  std::vector<VecD> A = A_full_from_lower(this->a_lower);
+  std::vector<VecD> A = this->A_full_from_lower(this->a_lower);
   double t_inner;
   VecD x_inner;
   for (size_t j = 0; j < this->n; j++) {
