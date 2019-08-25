@@ -11,13 +11,13 @@
 using VecS = std::vector<Scheme>;
 
 std::pair<double,VecD> evalSinCos(const Scheme& s) {
-  double t_end = 1;
+  double t_end = M_PI;
   auto [timesteps, result] = s.run({0.,1.},[](double t, const VecD& v)->VecD {return {v[1],-v[0]};}, t_end);
   double error = 0;
   size_t n_t = timesteps.size();
   double t = 0;
   for (size_t i = 0; i < n_t; i++) {
-    error += std::sqrt(std::pow(result[i][0]-std::sin(t),2)+std::pow(result[i][1]-(std::cos(t)),2));
+    error += norm_dist<2>(result[i], {std::sin(t), std::cos(t)});
     t += s.dt;
   }
 
@@ -26,7 +26,7 @@ std::pair<double,VecD> evalSinCos(const Scheme& s) {
     std::cerr << s << std::endl;
     throw std::runtime_error("Evaluation result is NaN!");
   }
-  return {error, result[result.size()-1]};
+  return {error, result.back()};
 }
 
 std::pair<double,VecD> eval2DSecondOrder(const Scheme& s) {
@@ -44,23 +44,7 @@ std::pair<double,VecD> eval2DSecondOrder(const Scheme& s) {
     t += s.dt;
   }
 
-  return {error, result[result.size()-1]};
-}
-
-std::pair<double,VecD> eval(const Scheme& s) {
-  double t_end = 1;
-  auto [timesteps, result] = s.run({1.,0.},[](double t, const VecD& v)->VecD {return {v[1]*t, -v[0]*t};}, t_end);
-  double error = 0;
-
-  size_t n_t = timesteps.size();
-  double t = 0;
-  for (size_t i = 0; i < n_t; i++) {
-    VecD y = {std::cos(t*t/2), -std::sin(t*t/2)};
-    error += std::sqrt(std::pow(result[i][0]-y[0],2)+std::pow(result[i][1]-y[1],2));
-    t += s.dt;
-  }
-
-  return {error, result[result.size()-1]};
+  return {error, result.back()};
 }
 
 

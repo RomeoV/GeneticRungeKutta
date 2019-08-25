@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>
 #include <numeric>
+#include <cmath>
 
 using VecD = std::vector<double>;
 
@@ -49,4 +50,14 @@ namespace std {
            + std::accumulate(rhs.c.begin(), rhs.c.end(), 0.);
     }
   };
+}
+
+template<size_t p>
+double norm_dist(VecD const& lhs, VecD const& rhs) {
+  VecD squared_errors(std::min(lhs.size(), rhs.size()));
+  std::transform(lhs.begin(), lhs.end(),
+                 rhs.begin(),
+                 squared_errors.begin(),
+                 [](double lhs, double rhs) {return std::pow(lhs-rhs, p);});
+  return std::pow(std::accumulate(squared_errors.begin(), squared_errors.end(), 0.), 1./p);
 }

@@ -6,16 +6,6 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-template<size_t p>
-double norm_dist(VecD const& lhs, VecD const& rhs) {
-  VecD squared_errors(std::min(lhs.size(), rhs.size()));
-  std::transform(lhs.begin(), lhs.end(),
-                 rhs.begin(),
-                 squared_errors.begin(),
-                 [](double lhs, double rhs) {return std::pow(lhs-rhs, p);});
-  return std::pow(std::accumulate(squared_errors.begin(), squared_errors.end(), 0.), 1./p);
-}
-
 TEST(SimpsonRule, SinCos) {
   Scheme s(3);
   s.c = {0., 1./2, 1.};
