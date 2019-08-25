@@ -28,7 +28,7 @@ class Scheme {
 
   void init();
   void mutate(double prob, double scaling);
-  std::vector<VecD> run(const VecD& x0, std::function<VecD(double,VecD)> f, double t_end) const;
+  std::pair<VecD, std::vector<VecD>> run(const VecD& x0, std::function<VecD(double,VecD)> f, double t_end) const;
   static Scheme generate(const Scheme&, const Scheme&);
 
   private:

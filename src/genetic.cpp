@@ -70,7 +70,7 @@ Scheme Scheme::generate(const Scheme& lhs, const Scheme& rhs) {
   return s;
 }
 
-std::vector<VecD> Scheme::run(const VecD& x0, std::function<VecD(double,VecD)> f, double t_end) const {
+std::pair<VecD, std::vector<VecD>> Scheme::run(const VecD& x0, std::function<VecD(double,VecD)> f, double t_end) const {
   int n_t = std::floor((t_end-0)/this->dt)+1;
   VecD timesteps(n_t);
   std::vector<VecD> x(n_t,VecD(x0.size(),0));
@@ -89,7 +89,7 @@ std::vector<VecD> Scheme::run(const VecD& x0, std::function<VecD(double,VecD)> f
     timesteps[t_i+1] = timesteps[t_i] + this->dt;
   }
 
-  return x;
+  return {timesteps, x};
 }
 
 std::vector<VecD> Scheme::A_full_from_lower(VecD const& a_lower) const {

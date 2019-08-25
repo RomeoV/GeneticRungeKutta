@@ -21,9 +21,9 @@ TEST(SimpsonRule, SinCos) {
   s.c = {0., 1./2, 1.};
   s.b = {1./6, 4./6, 1./6};
   s.a_lower = {1./2, -1., 2.};
-  s.dt = 1e-2;
+  s.dt = 1e-3;
 
-  auto x = s.run({0.,1.}, [](double t, const VecD& v) -> VecD { return {v[1], -v[0]}; } , M_PI);
+  auto [timesteps, x] = s.run({0.,1.}, [](double t, const VecD& v) -> VecD { return {v[1], -v[0]}; } , M_PI);
   std::ofstream sincos("sincos.csv");
   ASSERT_TRUE(sincos.is_open());
   for (auto x_ : x) {
@@ -33,13 +33,11 @@ TEST(SimpsonRule, SinCos) {
   sincos.close();
 
   size_t N_t = (M_PI-0)/s.dt + 1;
-  VecD timesteps(N_t); std::generate(timesteps.begin(), timesteps.end(), [n=0, N_t]() mutable {return n++/(N_t-1);});
 
   for (size_t t_i = 0; t_i < N_t; t_i++) {
     double t = timesteps[t_i];
     ASSERT_NEAR(norm_dist<2>(x[t_i], {sin(t), cos(t)}), 0., s.dt);
   }
-  // ASSERT_NEAR(std::sqrt(std::pow(x.back()[0]-std::cos(1),2)+std::pow(x.back()[1]+std::sin(1),2)), 0, 2e-9);
 }
 
 TEST(ExplicitEuler, SinCos) {
@@ -49,7 +47,7 @@ TEST(ExplicitEuler, SinCos) {
   s.a_lower = {};
   s.dt = 0.01;
 
-  auto x = s.run({0.,1.}, [](double t, const VecD& v) -> VecD { return {v[1], -v[0]}; } , 1);
+  auto [timesteps, x] = s.run({0.,1.}, [](double t, const VecD& v) -> VecD { return {v[1], -v[0]}; } , 1);
 
   ASSERT_NEAR(std::sqrt(std::pow(x.back()[0]-std::cos(1),2)+std::pow(x.back()[1]+std::sin(1),2)), 0, 2e-2);
 }
@@ -61,7 +59,7 @@ TEST(HeunScheme, SinCos) {
   s.a_lower = {1.};
   s.dt = 0.01;
 
-  auto x = s.run({0.,1.}, [](double t, const VecD& v) -> VecD { return {v[1], -v[0]}; } , 1);
+  auto [timesteps, x] = s.run({0.,1.}, [](double t, const VecD& v) -> VecD { return {v[1], -v[0]}; } , 1);
 
   ASSERT_NEAR(std::sqrt(std::pow(x.back()[0]-std::cos(1),2)+std::pow(x.back()[1]+std::sin(1),2)), 0, 2e-4);
 }
