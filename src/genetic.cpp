@@ -72,26 +72,27 @@ Scheme Scheme::generate(const Scheme& lhs, const Scheme& rhs) {
 
 std::vector<VecD> Scheme::run(const VecD& x0, std::function<VecD(double,VecD)> f, double t_end) const {
   int n_t = std::floor((t_end-0)/this->dt)+1;
+  VecD timesteps(n_t);
   std::vector<VecD> x(n_t,VecD(x0.size(),0));
   x[0] = x0;
-  double t = 0; // Starting at fist timestep
-  std::vector<VecD> k(this->n,VecD(x0.size(),0.));
+  timesteps[0] = 0;
 
   for (int t_i = 0; t_i < n_t-1; t_i++) {
-    k = this->calcKVec(t,x[t_i],f);
-    x[t_i+1] = std::transform_reduce(
+    auto k = this->calcKVec(timesteps[t_i],x[t_i],f);
+    x[t_i+1] = x[t_i] + this->dt * std::transform_reduce(
       std::execution::unseq,
       this->b.begin(), this->b.end(),
-      k.begin(), x[t_i], 
+      k.begin(),
+      VecD(x0.size(), 0), 
       VectorPlusVector(), ScalarTimesVector()
     );
+    timesteps[t_i+1] = timesteps[t_i] + this->dt;
   }
 
   return x;
 }
 
 std::vector<VecD> Scheme::A_full_from_lower(VecD const& a_lower) const {
-  // size_t dims = static_cast<size_t>(std::sqrt(0.25+2*a_lower.size())-1./2) + 1;  // a_lower.size() = n(n+1)/2 => pq-equation: n = -1/2 + sqrt(1/4 + a_lower.size)
   std::vector<VecD> A(this->n, VecD());
   size_t lower_idx = 0;
 
