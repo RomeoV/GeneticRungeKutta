@@ -7,4 +7,8 @@ target_link_libraries(simpson_rule
   GTest::Main
   fmt
 )
+set_target_properties(simpson_rule
+  PROPERTIES
+  CXX_STANDARD 17
+)
 gtest_discover_tests(simpson_rule)
