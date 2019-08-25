@@ -6,13 +6,14 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-double norm(VecD const& lhs, VecD const& rhs) {
+template<size_t p>
+double norm_dist(VecD const& lhs, VecD const& rhs) {
   VecD squared_errors(std::min(lhs.size(), rhs.size()));
   std::transform(lhs.begin(), lhs.end(),
                  rhs.begin(),
                  squared_errors.begin(),
-                 [](double lhs, double rhs) {return std::pow(lhs-rhs, 2);});
-  return std::sqrt(std::accumulate(squared_errors.begin(), squared_errors.end(), 0.));
+                 [](double lhs, double rhs) {return std::pow(lhs-rhs, p);});
+  return std::pow(std::accumulate(squared_errors.begin(), squared_errors.end(), 0.), 1./p);
 }
 
 TEST(SimpsonRule, SinCos) {
@@ -36,7 +37,7 @@ TEST(SimpsonRule, SinCos) {
 
   for (size_t t_i = 0; t_i < N_t; t_i++) {
     double t = timesteps[t_i];
-    ASSERT_NEAR(norm(x[t_i], {sin(t), cos(t)}), 0., s.dt);
+    ASSERT_NEAR(norm_dist<2>(x[t_i], {sin(t), cos(t)}), 0., s.dt);
   }
   // ASSERT_NEAR(std::sqrt(std::pow(x.back()[0]-std::cos(1),2)+std::pow(x.back()[1]+std::sin(1),2)), 0, 2e-9);
 }
