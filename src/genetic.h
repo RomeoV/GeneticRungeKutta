@@ -18,7 +18,7 @@ struct VectorPlusVector { VecD operator()(VecD const& lhs, VecD const& rhs); };
 
 
 class Scheme {
-  public:
+public:
   Scheme() {};
   Scheme(int n, double dt=1e-2);
 
@@ -26,15 +26,14 @@ class Scheme {
   VecD b;
   VecD c;
   VecD a_lower;
-  // std::vector<VecD> a;
   double dt;
 
   void init();
-  void mutate(double prob, double scaling);
   std::pair<VecD, std::vector<VecD>> run(const VecD& x0, std::function<VecD(double,VecD)> f, double t_end) const;
   static Scheme generate(const Scheme&, const Scheme&);
+  void mutate(double prob, double scaling);
 
-  private:
+private:
   std::vector<VecD> calcKVec(double t, const VecD& x, std::function<VecD(double,VecD)> f) const;
   std::vector<VecD> A_full_from_lower(VecD const& a_lower) const;
 };
