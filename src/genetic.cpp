@@ -30,7 +30,7 @@ void Scheme::init() {
 void Scheme::mutate(double prob, double scaling) {
   std::random_device rd{};
   std::mt19937 gen(rd());
-  std::normal_distribution<> gaussian(0,3); // (Mean, Standard deviation)
+  std::normal_distribution<> gaussian(0,1); // (Mean, Standard deviation)
   std::normal_distribution<> scaled_gaussian(0.,std::pow(scaling,2)); // (Mean, Standard deviation)
 
   // Only with probability prob

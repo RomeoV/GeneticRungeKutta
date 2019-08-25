@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <functional>
+#include <numeric>
 
 using VecD = std::vector<double>;
 
@@ -17,6 +18,7 @@ struct VectorPlusVector { VecD operator()(VecD const& lhs, VecD const& rhs); };
 
 class Scheme {
   public:
+  Scheme() {};
   Scheme(int n, double dt=1e-2);
 
   int n;
@@ -35,3 +37,16 @@ class Scheme {
   std::vector<VecD> calcKVec(double t, const VecD& x, std::function<VecD(double,VecD)> f) const;
   std::vector<VecD> A_full_from_lower(VecD const& a_lower) const;
 };
+
+namespace std {
+  template<> struct less<Scheme> {
+    bool operator() (Scheme const& lhs, Scheme const& rhs) const {
+      return std::accumulate(lhs.a_lower.begin(), lhs.a_lower.end(), 0.)
+           + std::accumulate(lhs.b.begin(), lhs.b.end(), 0.)
+           + std::accumulate(lhs.c.begin(), lhs.c.end(), 0.)
+           < std::accumulate(rhs.a_lower.begin(), rhs.a_lower.end(), 0.)
+           + std::accumulate(rhs.b.begin(), rhs.b.end(), 0.)
+           + std::accumulate(rhs.c.begin(), rhs.c.end(), 0.);
+    }
+  };
+}
