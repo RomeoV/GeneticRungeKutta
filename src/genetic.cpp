@@ -3,60 +3,7 @@
 #include <random>
 #include <algorithm>
 #include <numeric>
-#include <iostream>
 #include <execution>
-// #include <pstl/execution>
-// #include <pstl/algorithm>
-
-std::ostream& operator<<(std::ostream& os, const VecD& v) {
-  os << "[";
-  for (double el : v) {
-    os << el << " ";
-  }
-  os << "]";
-  return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const Scheme& s) {
-  os << "Scheme summary:" << std::endl;
-  os << "a_lower: " << s.a_lower << std::endl;
-  os << "b: " << s.b << std::endl;
-  os << "c: " << s.c << std::endl;
-  os << "dt: " << s.dt << std::endl;
-  return os;
-}
-
-VecD operator+(const VecD& lhs, const VecD& rhs) {
-  if (lhs.size() != rhs.size()) throw std::runtime_error("Unequal sizes n in operator+!");
-  VecD result;
-  std::transform(lhs.begin(), lhs.end(), rhs.begin(),
-      std::back_inserter(result), std::plus<double>());
-  return result;
-}
-
-void operator+=(VecD& lhs, const VecD& rhs) {
-  if (lhs.size() != rhs.size()) throw std::runtime_error("Unequal sizes n operator+=!");
-  lhs = lhs+rhs;
-}
-
-VecD operator*(const double& lhs, const VecD& rhs) {
-  VecD result;
-  std::transform(rhs.begin(), rhs.end(), std::back_inserter(result),
-      [=](double val){return lhs*val;});
-  return result;
-}
-
-struct ScalarTimesVector {
-  VecD operator()(const double& lhs, const VecD& rhs) {
-    return lhs*rhs;
-  }
-};
-
-struct VectorPlusVector {
-  VecD operator()(VecD const& lhs, VecD const& rhs) {
-    return lhs+rhs;
-  }
-};
 
 Scheme::Scheme(int n, double dt) {
   this->n = n;
@@ -129,25 +76,17 @@ std::vector<VecD> Scheme::run(const VecD& x0, std::function<VecD(double,VecD)> f
   x[0] = x0;
   double t = 0; // Starting at fist timestep
   std::vector<VecD> k(this->n,VecD(x0.size(),0.));
-  for (int i = 0; i < n_t-1; i++) {
-    k = this->calcKVec(t,x[i],f);
-    x[i+1] = std::transform_reduce(
+
+  for (int t_i = 0; t_i < n_t-1; t_i++) {
+    k = this->calcKVec(t,x[t_i],f);
+    x[t_i+1] = std::transform_reduce(
       std::execution::unseq,
       this->b.begin(), this->b.end(),
-      k.begin(), x[i], 
+      k.begin(), x[t_i], 
       VectorPlusVector(), ScalarTimesVector()
     );
-    /*
-    std::vector<VecD> b_k; b_k.reserve(k.size());
-    std::transform(b.begin(),b.end(),
-                   k.begin(),std::back_inserter(b_k),
-                   [](double b, const VecD& k) {return b*k;});
-    x[i+1] = x[i] + this->dt * std::accumulate(b_k.begin(),b_k.end(),VecD(x[i].size(),0.));
-    t += this->dt;
-    */
-    /* x += this->dt * std::transform_reduce(this->b.begin(), this->b.end(), k.begin(), VecD(x0.size(),0.), */
-    /*                                       [](double b, VecD k){return b*k;},[](const VecD& l, const VecD& r){return l+r;}); */
   }
+
   return x;
 }
 
@@ -183,27 +122,3 @@ std::vector<VecD> Scheme::calcKVec(double t, const VecD& x, std::function<VecD(d
 
   return k;
 }
-
-/**
-std::vector<VecD> Scheme::calcKVec(double t, const VecD& x, std::function<VecD(double,VecD)> f) const {
-  int a_idx, k_idx, jump;
-  double t_inner;
-  std::vector<VecD> k(this->n,VecD(x.size(),0.));
-  VecD x_inner;
-  for (int j = 0; j < this->n; j++) {
-    t_inner = t + this->c[j]*this->dt;
-    x_inner = x;
-    k_idx = 0;
-    a_idx = j-1;
-    jump = this->n-2;
-    while (k_idx < j) {
-      x_inner += this->dt*this->a_lower[a_idx]*k[k_idx];
-      a_idx += jump;
-      jump--;
-      k_idx++;
-    }
-    k[j] = f(t+this->dt*this->c[j], x_inner);
-  }
-  return k;
-}
-*/

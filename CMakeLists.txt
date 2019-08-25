@@ -13,6 +13,7 @@ find_package(TBB REQUIRED)
 
 add_library(GeneticScheme
   src/genetic.cpp
+  src/vector_operations.cpp
 )
 target_link_libraries(GeneticScheme
   TBB::tbb

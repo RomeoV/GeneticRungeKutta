@@ -11,6 +11,8 @@ std::ostream& operator<<(std::ostream& os, const Scheme& s);
 VecD operator+(const VecD& lhs, const VecD& rhs);
 void operator+=(VecD& lhs, const VecD& rhs);
 VecD operator*(const double& lhs, const VecD& rhs);
+struct ScalarTimesVector { VecD operator()(const double& lhs, const VecD& rhs); };
+struct VectorPlusVector { VecD operator()(VecD const& lhs, VecD const& rhs); };
 
 
 class Scheme {
