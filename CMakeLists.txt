@@ -6,6 +6,7 @@ include(ExternalProject)
 externalproject_add(fmt-lib
   PREFIX external
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  INSTALL_COMMAND ""
 )
 add_subdirectory(build/external/src/fmt)
 set (CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
